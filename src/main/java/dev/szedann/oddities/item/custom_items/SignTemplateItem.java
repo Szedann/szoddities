@@ -1,6 +1,5 @@
 package dev.szedann.oddities.item.custom_items;
 
-import dev.szedann.oddities.Szoddities;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.block.entity.SignText;
 import net.minecraft.client.item.TooltipContext;
@@ -12,15 +11,14 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.network.message.FilterMask;
+import net.minecraft.server.filter.FilteredMessage;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Colors;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,18 +40,16 @@ public class SignTemplateItem extends Item {
             Arrays.stream(text.getMessages(false)).map(Text::getString).map(NbtString::of).forEach(list::add);
             stack.setSubNbt("messages", list);
         }else if( stack.hasNbt() && stack.getNbt().getList("messages", NbtElement.STRING_TYPE) != null){
+            if(signBlockEntity.isWaxed()) return ActionResult.FAIL;
             NbtCompound nbt = stack.getOrCreateNbt();
             NbtList list = nbt.getList("messages", NbtElement.STRING_TYPE);
             if(list == null) return ActionResult.FAIL;
-            List<Text> textList = new ArrayList<>();
-            list.stream().map(NbtElement::asString).map(Text::literal).forEach(textList::add);
-            SignText currentText = signBlockEntity.getText(signBlockEntity.isPlayerFacingFront(player));
-            signBlockEntity.setText(new SignText(
-                    textList.toArray(new Text[0]),
-                    textList.toArray(new Text[0]),
-                    currentText.getColor(),
-                    currentText.isGlowing()
-            ), signBlockEntity.isPlayerFacingFront(player));
+            List<FilteredMessage> messages = list.stream().map(NbtElement::asString).map(e->new FilteredMessage(e, FilterMask.PASS_THROUGH)).toList();
+            signBlockEntity.setEditor(player.getUuid());
+            signBlockEntity.tryChangeText(player,
+                    signBlockEntity.isPlayerFacingFront(player),
+                    messages
+            );
         }
         return ActionResult.SUCCESS;
     }
