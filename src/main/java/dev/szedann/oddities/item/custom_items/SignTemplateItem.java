@@ -39,7 +39,7 @@ public class SignTemplateItem extends Item {
             NbtList list = new NbtList();
             Arrays.stream(text.getMessages(false)).map(Text::getString).map(NbtString::of).forEach(list::add);
             stack.setSubNbt("messages", list);
-        }else if( stack.hasNbt() && stack.getNbt().getList("messages", NbtElement.STRING_TYPE) != null){
+        }else if(stack.getNbt() != null && stack.getNbt().getList("messages", NbtElement.STRING_TYPE) != null){
             if(signBlockEntity.isWaxed()) return ActionResult.FAIL;
             NbtCompound nbt = stack.getOrCreateNbt();
             NbtList list = nbt.getList("messages", NbtElement.STRING_TYPE);
@@ -56,11 +56,11 @@ public class SignTemplateItem extends Item {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        if(stack.hasNbt() && stack.getNbt().getList("messages", NbtElement.STRING_TYPE) != null){
+        if (stack.getNbt() != null && stack.getNbt().getList("messages", NbtElement.STRING_TYPE) != null) {
             NbtCompound nbt = stack.getOrCreateNbt();
             NbtList list = nbt.getList("messages", NbtElement.STRING_TYPE);
-            if(list == null) return;
-            list.stream().map(NbtElement::asString).map(Text::literal).map(text->text.formatted(Formatting.GRAY)).forEach(tooltip::add);
+            if (list == null) return;
+            list.stream().map(NbtElement::asString).filter(e -> !e.isEmpty()).map(Text::literal).map(text -> text.formatted(Formatting.GRAY)).forEach(tooltip::add);
         }
         super.appendTooltip(stack, world, tooltip, context);
     }
