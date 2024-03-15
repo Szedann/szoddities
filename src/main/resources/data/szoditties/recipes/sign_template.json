@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PSP"
+  ],
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "S": {
+      "tag": "minecraft:signs"
+    }
+  },
+  "result": {
+    "item": "szoddities:sign_template",
+    "count": 1
+  }
+}
