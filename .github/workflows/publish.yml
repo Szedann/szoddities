@@ -37,4 +37,8 @@
             modrinth-id: qFUgTUoW                                             #The id of your modrinth project
             modrinth-token: "${{secrets.MODRINTH_TOKEN}}"
 
+            loaders: |
+              fabric
+              quilt
+
             github-token: "${{secrets.GH_TOKEN}}"
